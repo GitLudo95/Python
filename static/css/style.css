@@ -1,0 +1,86 @@
+body.homePage {
+  	margin-top: 2%;
+  	margin-left: 2%;
+  	margin-right: 2%;
+  	margin-bottom: 2%;
+}
+
+img {
+  	display: block;
+  	margin-left: auto;
+  	margin-right: auto;
+  	margin-bottom: 1.5%;
+  	-webkit-box-shadow: 1px 1px 2px 2px #181818;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+  	-moz-box-shadow:    1px 1px 2px 2px #181818;  /* Firefox 3.5 - 3.6 */
+  	box-shadow:         1px 1px 2px 2px #181818;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+}
+
+#homePageTitle {
+	text-align: center
+}
+
+#StockTickerColumn {
+	max-width: 450px;
+}
+
+#StockTicker {
+	background-color: #ffffff;
+}
+
+.collapse {
+	max-width: 1600px;
+}
+
+#StockInfoCard {
+	margin-top: 2%;
+}
+
+.alert-danger {
+	display: none;
+	max-width: 800px;
+	margin-top: 2%;
+	margin-bottom: 2%;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+	body.homePage {
+  		background-color: #121212;
+  		color: #ffffff;
+	}
+
+	.btn-primary, .accordion-button:not(.collapsed) {
+		background-color: #3700B3 !important;
+		border-color: #3700B3 !important;
+		color: #ffffff !important;
+	}
+
+	#loadingSpinner {
+		color: #3700B3 !important;
+	}
+
+	.accordion-button.collapsed {
+		background-color: #b3b3b3;
+		color: black;
+	}
+
+	#StockInfoCard {
+		background-color: #181818;
+	}
+
+	.collapse {
+		background-color: #282828;
+	}
+
+	.alert-danger {
+		display: none;
+		background-color: #cf6679 !important;
+		border-color: #cf6679 !important;
+		color: black !important;
+	}
+
+	.alert-info {
+		background-color: #bb86fc !important; 
+		border-color: #bb86fc !important;
+		color: #ffffff !important;
+	}
+}
