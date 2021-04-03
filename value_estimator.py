@@ -51,7 +51,7 @@ def separateThousand(num):
     if type(num) == int or type(num) == float: 
         return '{:,}'.format(num)
     else:
-        return num
+        return "N/A"
 
 def roundNumber(num, decimals):
     if type(num) == int or type(num) == float: 
@@ -133,47 +133,50 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
     errorMessage = ""
     yahooFinanceInfo = YahooFinanceInfo()
 
+    tickerInfo = None
+
     try:
         tickerInfo = yf.Ticker(ticker)
     except Exception as e:
         print(e)
         errorMessage = "Could not retrieve all information from Yahoo Finance"
         print(errorMessage)
-    try:
-        yahooFinanceInfo.companyName = tickerInfo.info['longName']
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.companyName = "N/A"
-    try:
-        yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.trailingPE = "N/A"
-    try:
-        yahooFinanceInfo.marketCap = roundNumber(tickerInfo.info['marketCap'], 2)
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.marketCap = "N/A"
-    try:
-        yahooFinanceInfo.forwardPE = roundNumber(tickerInfo.info['forwardPE'], 2)
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.forwardPE = "N/A"
-    try:
-        yahooFinanceInfo.pegRatio = roundNumber(tickerInfo.info['pegRatio'], 2)
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.pegRatio = "N/A"
-    try:
-        yahooFinanceInfo.priceToSalesTrailing12Months = roundNumber(tickerInfo.info['priceToSalesTrailing12Months'], 2)
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.priceToSalesTrailing12Months = "N/A"
-    try:
-        yahooFinanceInfo.logoURL = tickerInfo.info['logo_url']
-    except Exception as e:
-        print(e)
-        yahooFinanceInfo.logoURL = "N/A"
+    if tickerInfo:
+        try:
+            yahooFinanceInfo.companyName = tickerInfo.info['longName']
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.companyName = "N/A"
+        try:
+            yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.trailingPE = "N/A"
+        try:
+            yahooFinanceInfo.marketCap = roundNumber(tickerInfo.info['marketCap'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.marketCap = "N/A"
+        try:
+            yahooFinanceInfo.forwardPE = roundNumber(tickerInfo.info['forwardPE'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.forwardPE = "N/A"
+        try:
+            yahooFinanceInfo.pegRatio = roundNumber(tickerInfo.info['pegRatio'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.pegRatio = "N/A"
+        try:
+            yahooFinanceInfo.priceToSalesTrailing12Months = roundNumber(tickerInfo.info['priceToSalesTrailing12Months'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.priceToSalesTrailing12Months = "N/A"
+        try:
+            yahooFinanceInfo.logoURL = tickerInfo.info['logo_url']
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.logoURL = "N/A"
 
     url = "https://www.gurufocus.com/term/wacc/{}/WACC-Percentage/".format(ticker)
     

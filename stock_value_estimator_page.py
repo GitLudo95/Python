@@ -39,7 +39,8 @@ def homePage():
 			grahamInfo = graham(stockInfo)
 
 			stockInfo.marketPrice = separateThousand(stockInfo.marketPrice)
-			stockInfo.yahooFinanceInfo.marketCap = separateThousand(roundNumber(stockInfo.yahooFinanceInfo.marketCap/1000000000, 0))
+			if (type(stockInfo.yahooFinanceInfo.marketCap) == int or type(stockInfo.yahooFinanceInfo.marketCap) == float) and stockInfo.yahooFinanceInfo.marketCap > 0: 
+				stockInfo.yahooFinanceInfo.marketCap = separateThousand(roundNumber(stockInfo.yahooFinanceInfo.marketCap/1000000000, 0))
 			dcfInfo.fairValue = separateThousand(dcfInfo.fairValue)
 			grahamInfo.expectedValue = separateThousand(grahamInfo.expectedValue)
 		except Exception as e:
