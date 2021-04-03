@@ -1,1 +1,1 @@
-web: gunicorn app:stock_value_estimator_page
+web: gunicorn stock_value_estimator_page:app
