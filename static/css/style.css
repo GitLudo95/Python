@@ -5,6 +5,14 @@ body.homePage {
   	margin-bottom: 2%;
 }
 
+p {
+	margin-bottom: 1em;
+}
+
+strong {
+	color: #0d6efd;
+}
+
 img {
   	display: block;
   	margin-left: auto;
@@ -42,10 +50,18 @@ img {
 	margin-bottom: 2%;
 }
 
+.alertStrong {
+	color: black;
+}
+
 @media screen and (prefers-color-scheme: dark) {
 	body.homePage {
   		background-color: #121212;
   		color: #ffffff;
+	}
+
+	strong {
+		color: #03DAC5;
 	}
 
 	.btn-primary, .accordion-button:not(.collapsed) {
@@ -83,4 +99,29 @@ img {
 		border-color: #bb86fc !important;
 		color: #ffffff !important;
 	}
+
+	.alertStrong {
+		color: black;
+	}
+}
+
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 600px) {
+	#StockInfoCard {
+		padding: 0 !important;
+	}
+	.alert, img {
+		font-size: 0.8rem;
+	}
+  	p {
+    	font-size: 0.7rem;
+    	min-height: 30px;
+    	margin-bottom: 0.5em !important;
+    	margin-top: 0.5em !important;
+  	}
+  	img {
+  		width: 50px;
+  		height: 50px;
+  		margin-bottom: 10px;
+  	}
 }

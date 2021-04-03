@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from value_estimator import StockInfo, DCFInfo, parse, dcf, Graham, graham, separateThousand
+from value_estimator import StockInfo, DCFInfo, parse, dcf, Graham, graham, separateThousand, roundNumber
 
 app = Flask(__name__)
 
@@ -39,7 +39,7 @@ def homePage():
 			grahamInfo = graham(stockInfo)
 
 			stockInfo.marketPrice = separateThousand(stockInfo.marketPrice)
-			stockInfo.yahooFinanceInfo.marketCap = separateThousand(stockInfo.yahooFinanceInfo.marketCap)
+			stockInfo.yahooFinanceInfo.marketCap = separateThousand(roundNumber(stockInfo.yahooFinanceInfo.marketCap/1000000000, 0))
 			dcfInfo.fairValue = separateThousand(dcfInfo.fairValue)
 			grahamInfo.expectedValue = separateThousand(grahamInfo.expectedValue)
 		except Exception as e:
