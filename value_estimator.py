@@ -57,10 +57,7 @@ def roundNumber(num, decimals):
     if type(num) == int or type(num) == float: 
         return round(num, 2)
     else:
-        try:
-            return round(float(num), 2)
-        except Exception:
-            return num
+        return "N/A"
 
 def parseWACC(url):
     print("url", url)
@@ -139,7 +136,7 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
     try:
         tickerInfo = yf.Ticker(ticker)
         yahooFinanceInfo.companyName = tickerInfo.info['longName']
-        yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
+        # yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
         yahooFinanceInfo.marketCap = roundNumber(tickerInfo.info['marketCap'], 2)
         yahooFinanceInfo.forwardPE = roundNumber(tickerInfo.info['forwardPE'], 2)
         yahooFinanceInfo.pegRatio = roundNumber(tickerInfo.info['pegRatio'], 2)
