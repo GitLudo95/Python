@@ -9,8 +9,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 class YahooFinanceInfo:
-    def __init__(self, companyName="", trailingPE=0, marketCap=0, forwardPE=0, pegRatio=0, priceToSalesTrailing12Months=0, logoURL=""):
+    def __init__(self, companyName="", marketPrice=0, trailingEPS=0, sharesOutstanding=0, trailingPE=0, marketCap=0, forwardPE=0, pegRatio=0, priceToSalesTrailing12Months=0, logoURL=""):
         self.companyName = companyName
+        self.marketPrice = marketPrice
+        self.trailingEPS = trailingEPS
+        self.sharesOutstanding = sharesOutstanding
         self.trailingPE = trailingPE
         self.marketCap = marketCap
         self.forwardPE = forwardPE
@@ -59,6 +62,75 @@ def roundNumber(num, decimals):
     else:
         return "N/A"
 
+def isNoneZeroEmptyOrNA(val):
+    if type(val) == None or val == 0 or val == "" or val == "N/A":
+        return True
+    else:
+        return False
+
+def parseYahooFinanceInfo(ticker):
+    yahooFinanceInfo = YahooFinanceInfo()
+    tickerInfo = None
+    try:
+        tickerInfo = yf.Ticker(ticker)
+    except Exception as e:
+        print(e)
+        errorMessage = "Could not retrieve all information from Yahoo Finance"
+        print(errorMessage)
+    if tickerInfo:
+        try:
+            yahooFinanceInfo.companyName = tickerInfo.info['longName']
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.companyName = "N/A"
+        try:
+            yahooFinanceInfo.marketPrice = roundNumber(tickerInfo.info['regularMarketPrice'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.marketPrice = "N/A"
+        try:
+            yahooFinanceInfo.trailingEPS = roundNumber(tickerInfo.info['trailingEps'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.trailingEPS = "N/A"
+        try:
+            yahooFinanceInfo.sharesOutstanding = roundNumber(tickerInfo.info['sharesOutstanding'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.sharesOutstanding = "N/A"
+        try:
+            yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.trailingPE = "N/A"
+        try:
+            yahooFinanceInfo.marketCap = roundNumber(tickerInfo.info['marketCap'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.marketCap = "N/A"
+        try:
+            yahooFinanceInfo.forwardPE = roundNumber(tickerInfo.info['forwardPE'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.forwardPE = "N/A"
+        try:
+            yahooFinanceInfo.pegRatio = roundNumber(tickerInfo.info['pegRatio'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.pegRatio = "N/A"
+        try:
+            yahooFinanceInfo.priceToSalesTrailing12Months = roundNumber(tickerInfo.info['priceToSalesTrailing12Months'], 2)
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.priceToSalesTrailing12Months = "N/A"
+        try:
+            yahooFinanceInfo.logoURL = tickerInfo.info['logo_url']
+        except Exception as e:
+            print(e)
+            yahooFinanceInfo.logoURL = "N/A"
+
+    return yahooFinanceInfo
+
 def parseWACC(url):
     print("url", url)
     response = requests.get(url, verify=False)
@@ -93,32 +165,27 @@ def parseGrowthEstimate(url):
 
     return growthEstimate
 
-def parseShares(url):
-    print("url", url)
-    response = requests.get(url, verify=False)
-    parser = html.fromstring(response.content)
-    shares = parser.xpath('//div[@class="info"]//table//tbody//tr[td/text()[contains(., "Shares Out")]]')
-
-    shares = shares[0].xpath('td/text()')[1]
-    factor = 1000 if 'B' in shares else 1 
-    return float(shares.replace('B', '').replace('M', '')) * factor
-
-def parseEpsAndMarketPrice(url):
+def parseEpsSharesAndMarketPrice(url):
     print("url", url)
     response = requests.get(url, verify=False)
     parser = html.fromstring(response.content)
     eps = parser.xpath('//table[contains(@id,"fintable")]//tr[td/span/text()[contains(., "EPS (Diluted)")]]')[0].xpath('.//td/text()')
     eps = float(eps[0].replace(",", ""))
+    shares = parser.xpath('//table[contains(@id,"fintable")]//tr[td/span/text()[contains(., "Shares Outstanding (Diluted)")]]')[0].xpath('.//td/text()')
+    shares = float(shares[0].replace(",", ""))
     marketPrice = float(parser.xpath('//div[@id="sp"]/span[@id="cpr"]/text()')[0].replace('$', '').replace(',', ''))
-    return {'eps': eps, 'marketPrice': marketPrice}
+    return {'eps': eps, 'shares': shares, 'marketPrice': marketPrice}
 
-def parseLogger(marketPrice, eps, growthEstimate, years, discountRate, perpetualRate):
-    print("Market price: {}".format(marketPrice))
-    print("EPS: {}".format(eps))
-    print("Growth estimate: {}".format(growthEstimate))
-    print("Term: {} years".format(years))
-    print("Discount Rate: {}%".format(discountRate))
-    print("Perpetual Rate: {}%\n".format(perpetualRate))
+def parseLogger(obj):
+    try:
+        attributes = vars(obj)
+        for item in attributes:
+            if "YahooFinanceInfo" in str(type(attributes[item])):
+                parseLogger(attributes[item])
+            else:
+                print(item, ' : ', attributes[item])
+    except Exception as e:
+        print(e)
 
 def parseCurrentAAABondYield(url):
     print("url", url)
@@ -131,52 +198,8 @@ def parseCurrentAAABondYield(url):
 
 def parse(ticker, years=5, discountRate=10, perpetualRate=3):
     errorMessage = ""
-    yahooFinanceInfo = YahooFinanceInfo()
 
-    tickerInfo = None
-
-    try:
-        tickerInfo = yf.Ticker(ticker)
-    except Exception as e:
-        print(e)
-        errorMessage = "Could not retrieve all information from Yahoo Finance"
-        print(errorMessage)
-    if tickerInfo:
-        try:
-            yahooFinanceInfo.companyName = tickerInfo.info['longName']
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.companyName = "N/A"
-        try:
-            yahooFinanceInfo.trailingPE = roundNumber(tickerInfo.info['trailingPE'], 2)
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.trailingPE = "N/A"
-        try:
-            yahooFinanceInfo.marketCap = roundNumber(tickerInfo.info['marketCap'], 2)
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.marketCap = "N/A"
-        try:
-            yahooFinanceInfo.forwardPE = roundNumber(tickerInfo.info['forwardPE'], 2)
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.forwardPE = "N/A"
-        try:
-            yahooFinanceInfo.pegRatio = roundNumber(tickerInfo.info['pegRatio'], 2)
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.pegRatio = "N/A"
-        try:
-            yahooFinanceInfo.priceToSalesTrailing12Months = roundNumber(tickerInfo.info['priceToSalesTrailing12Months'], 2)
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.priceToSalesTrailing12Months = "N/A"
-        try:
-            yahooFinanceInfo.logoURL = tickerInfo.info['logo_url']
-        except Exception as e:
-            print(e)
-            yahooFinanceInfo.logoURL = "N/A"
+    yahooFinanceInfo = parseYahooFinanceInfo(ticker)
 
     url = "https://www.gurufocus.com/term/wacc/{}/WACC-Percentage/".format(ticker)
     
@@ -186,6 +209,7 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
             discountRate = wacc
     except Exception as e:
         print(e)
+
     url = "https://stockanalysis.com/stocks/{}/financials/cash-flow-statement".format(ticker)
     
     try:
@@ -210,35 +234,28 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
         print(errorMessage)
         return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, 0, years, 0, discountRate, perpetualRate, 0, 0, errorMessage)
 
-    url = "https://stockanalysis.com/stocks/{}/".format(ticker)
-    
-    try:
-        shares = parseShares(url)
-    except Exception as e:
-        print(e)
-        errorMessage = "An unexpected error occured during retrieval of outstanding shares"
-        print(errorMessage)
-        return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, 0, discountRate, perpetualRate, 0, 0, errorMessage)
-
     url = "https://stockanalysis.com/stocks/{}/financials/".format(ticker)
     
     try:
-        data = parseEpsAndMarketPrice(url)
-        eps = data['eps']
-        marketPrice = data['marketPrice']
+        marketPrice = yahooFinanceInfo.marketPrice
+        eps = yahooFinanceInfo.trailingEPS
+        shares = yahooFinanceInfo.sharesOutstanding
+        if (type(shares) == int or type(shares) == float) and shares > 1000000:
+            shares = (shares / 1000000)
+        if isNoneZeroEmptyOrNA(marketPrice) or isNoneZeroEmptyOrNA(eps) or isNoneZeroEmptyOrNA(shares):
+            data = parseEpsSharesAndMarketPrice(url)
+            eps = data['eps']
+            shares = data['shares']
+            marketPrice = data['marketPrice']  
     except Exception as e:
         print(e)
         errorMessage = "An unexpected error occured during retrieval of EPS and market price"
         print(errorMessage)
-        return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, 0, discountRate, perpetualRate, shares, 0, errorMessage)
+        return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, eps, discountRate, perpetualRate, shares, marketPrice, errorMessage)
 
-    try:
-        parseLogger(marketPrice, eps, growthEstimate, years, discountRate, perpetualRate)
-    except Exception as e:
-        print(e)
-        print("Logging failure")
-
-    return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, eps, discountRate, perpetualRate, shares, marketPrice, errorMessage)
+    stockInfo = StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, eps, discountRate, perpetualRate, shares, marketPrice, errorMessage)
+    parseLogger(stockInfo)
+    return stockInfo
 
 def dcfLogger(forecastedCashflows, presentValueOfCF, fairValue):
     print("Forecasted cashflows: {}".format(forecastedCashflows))
