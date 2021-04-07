@@ -27,8 +27,8 @@ img {
 	text-align: center
 }
 
-#StockTickerColumn {
-	max-width: 450px;
+#StockTickerColumn, #ValuationTermColumn {
+	max-width: 400px;
 }
 
 #StockTicker {
