@@ -12,7 +12,7 @@
         <form class="row g-3 needs-validation" action="#" method="POST">
             <div id="StockTickerColumn" class="col-md-6">
                 <label for="inputTicker" class="form-label">Ticker</label>
-                <input list="stock-tickers" type="text" value="{{stockInfo.ticker}}" class="form-control" id="StockTicker" name="stockTicker" placeholder="Enter a ticker and click on submit!" oninput="parseTicker(event)" required>
+                <input list="stock-tickers" type="text" value="{{stockInfo.ticker}}" class="form-control" id="StockTicker" name="stockTicker" placeholder="Enter a ticker and click on submit!" onblur="parseTicker(event)" required>
                 <datalist id="stock-tickers">
                     {{stockTickers | safe}}
                 </datalist>
