@@ -22,7 +22,7 @@ class YahooFinanceInfo:
         self.logoURL = logoURL
 
 class StockInfo:
-    def __init__(self, ticker="", yahooFinanceInfo=YahooFinanceInfo(), freeCashFlow=0, financialInfo="", growthEstimate=0, years=0, eps=0, discountRate=0, perpetualRate=0, shares=0, marketPrice=0, errorMessage=""):
+    def __init__(self, ticker="", yahooFinanceInfo=YahooFinanceInfo(), freeCashFlow=0, financialInfo="", growthEstimate=0, years=5, eps=0, discountRate=0, perpetualRate=0, shares=0, marketPrice=0, errorMessage=""):
         self.ticker = ticker
         self.yahooFinanceInfo = yahooFinanceInfo
         self.freeCashFlow = freeCashFlow
@@ -210,7 +210,7 @@ def parseCurrentAAABondYield(url):
     print(bondYield)
     return float(bondYield)
 
-def parse(ticker, years=5, discountRate=10, perpetualRate=3):
+def parse(ticker, years, discountRate=10, perpetualRate=3):
     errorMessage = ""
 
     yahooFinanceInfo = parseYahooFinanceInfo(ticker)
@@ -232,9 +232,11 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
         financialInfo = cashflowInfo[1]
     except Exception as e:
         print(e)
-        errorMessage = "An unexpected error occured during retrieval of latest cashflows"
+        errorMessage += "An unexpected error occured during retrieval of latest cashflows. "
         print(errorMessage)
-        return StockInfo(ticker, yahooFinanceInfo, 0, "", 0, years, 0, discountRate, perpetualRate, 0, 0, errorMessage)
+        cashflowInfo = "N/A"
+        last_freeCashFlow = "N/A"
+        financialInfo = "N/A"
 
     print("Latest Free Cash Flow: {}".format(last_freeCashFlow))
 
@@ -244,9 +246,9 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
         growthEstimate = parseGrowthEstimate(url)
     except Exception as e:
         print(e)
-        errorMessage = "An unexpected error occured during retrieval of growth estimate"
+        errorMessage += "An unexpected error occured during retrieval of growth estimate. "
         print(errorMessage)
-        return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, 0, years, 0, discountRate, perpetualRate, 0, 0, errorMessage)
+        growthEstimate = "N/A"
 
     url = "https://stockanalysis.com/stocks/{}/financials/".format(ticker)
     
@@ -263,9 +265,8 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
             marketPrice = data['marketPrice']  
     except Exception as e:
         print(e)
-        errorMessage = "An unexpected error occured during retrieval of EPS and market price"
+        errorMessage += "An unexpected error occured during retrieval of EPS and market price. "
         print(errorMessage)
-        return StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, eps, discountRate, perpetualRate, shares, marketPrice, errorMessage)
 
     stockInfo = StockInfo(ticker, yahooFinanceInfo, last_freeCashFlow, financialInfo, growthEstimate, years, eps, discountRate, perpetualRate, shares, marketPrice, errorMessage)
     parseLogger(stockInfo)
@@ -277,6 +278,10 @@ def dcfLogger(forecastedCashflows, presentValueOfCF, fairValue):
     print("Fair value: {}".format(fairValue))
 
 def dcf(data):
+    if isNoneZeroEmptyOrNA(data.freeCashFlow) or isNoneZeroEmptyOrNA(data.growthEstimate):
+        return DCFInfo("N/A", "N/A", "N/A", "")
+
+
     forecast = [data.freeCashFlow]
 
     try:
@@ -302,16 +307,18 @@ def dcf(data):
         print(errorMessage)
         return DCFInfo("", 0, 0, errorMessage)
 
-    if dcf > 0:
+    if dcf > 0 and data.shares > 0:
         fairValue = round((dcf / data.shares), 2)
     else:
-        fairValue = round((0), 2)
+        fairValue = "N/A"
 
     dcfLogger(forecastedCashflows, presentValueOfCF, fairValue)
 
     return DCFInfo(forecastedCashflows, presentValueOfCF, fairValue, "")
 
 def graham(data):
+    if isNoneZeroEmptyOrNA(data.eps) or isNoneZeroEmptyOrNA(data.growthEstimate) or isNoneZeroEmptyOrNA(data.marketPrice):
+        return Graham("N/A", "N/A", "N/A", "")
     url = "https://ycharts.com/indicators/moodys_seasoned_aaa_corporate_bond_yield"
     try:
         bondYield = parseCurrentAAABondYield(url)

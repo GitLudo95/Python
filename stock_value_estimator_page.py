@@ -4,13 +4,19 @@ import html
 
 app = Flask(__name__)
 
-def getTickerFromForm(request):
-    text = request.form['stockTicker']
-    if " - " in text:
-    	text = text.split(" ")[0]
-    processed_text = html.escape(text.upper())
-    print(processed_text)
-    return processed_text
+def getFormInput(request):
+	ticker = request.form['stockTicker']
+	if " - " in ticker:
+		ticker = ticker.split(" ")[0]
+	processed_ticker = html.escape(ticker.upper())
+	print('ticker', processed_ticker)
+	valuationTerm = request.form['valuationTerm']
+	if valuationTerm:
+		processed_term = int(valuationTerm)
+	else:
+		processed_term = 5
+	print('term', processed_term)
+	return {'ticker': processed_ticker, 'term': processed_term}
 
 def getCurrency(financialInfo):
 	if "millions" in financialInfo:
@@ -38,8 +44,10 @@ def homePage():
 	grahamInfo = Graham()
 	if request.method == "POST":
 		try:
-			ticker = getTickerFromForm(request)
-			stockInfo = parse(ticker)
+			formInput = getFormInput(request)
+			ticker = formInput['ticker']
+			term = formInput['term']
+			stockInfo = parse(ticker, term)
 			dcfInfo = dcf(stockInfo)
 			grahamInfo = graham(stockInfo)
 

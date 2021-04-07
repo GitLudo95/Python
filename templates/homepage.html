@@ -17,6 +17,19 @@
                     {{stockTickers | safe}}
                 </datalist>
             </div>
+            <div id="ValuationTermColumn" class="col-md-6">
+                <label for="inputTerm" class="form-label">Valuation term</label>
+                <select class="form-select" value="{{stockInfo.years}}" aria-label="Valuation term select" id="ValuationTerm" name="valuationTerm">
+                    {% if stockInfo.years == 5 %}
+                    <option value="5" selected>5 years</option>
+                    <option value="10">10 years</option>
+                    {% endif %}
+                    {% if stockInfo.years == 10 %}
+                    <option value="5">5 years</option>
+                    <option value="10" selected>10 years</option>
+                    {% endif %}
+                </select>
+            </div>
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
