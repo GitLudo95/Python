@@ -7,8 +7,9 @@ app = Flask(__name__)
 def getTickerFromForm(request):
     text = request.form['stockTicker']
     if " - " in text:
-    	processed_text = text.split(" ")[0]
+    	text = text.split(" ")[0]
     processed_text = html.escape(text.upper())
+    print(processed_text)
     return processed_text
 
 def getCurrency(financialInfo):
@@ -36,8 +37,8 @@ def homePage():
 	dcfInfo = DCFInfo()
 	grahamInfo = Graham()
 	if request.method == "POST":
-		ticker = getTickerFromForm(request)
 		try:
+			ticker = getTickerFromForm(request)
 			stockInfo = parse(ticker)
 			dcfInfo = dcf(stockInfo)
 			grahamInfo = graham(stockInfo)
