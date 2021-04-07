@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 def getTickerFromForm(request):
     text = request.form['stockTicker']
+    if " - " in text:
+    	processed_text = text.split(" ")[0]
     processed_text = html.escape(text.upper())
     return processed_text
 
