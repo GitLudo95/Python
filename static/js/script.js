@@ -29,6 +29,13 @@ window.onload = function() {
 	validateForm();
 }
 
+const parseTicker = (e) => {
+	const ticker = e.target.value;
+	if(ticker && ticker.includes(" - ")) {
+		document.getElementById("StockTicker").value = ticker.split(" ")[0];
+	}
+}
+
 const collapseCard = (id) => {
 	const card = document.getElementById(id);
 	card.classList.remove("show");

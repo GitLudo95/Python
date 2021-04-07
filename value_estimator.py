@@ -68,6 +68,20 @@ def isNoneZeroEmptyOrNA(val):
     else:
         return False
 
+def parseStockTickers():
+    try:
+        url = "https://stockanalysis.com/stocks/"
+        print("url", url)
+        response = requests.get(url, verify=False)
+        parser = html.fromstring(response.content)
+        stockTickers = ""
+        for elem in parser.xpath('.//ul[@class="no-spacing"]/li'):
+            stockTickers += ("<option value='" + elem.text_content() + "'>")
+        return stockTickers
+    except Exception as e:
+        print(e)
+        return ""
+
 def parseYahooFinanceInfo(ticker):
     yahooFinanceInfo = YahooFinanceInfo()
     tickerInfo = None
@@ -240,7 +254,7 @@ def parse(ticker, years=5, discountRate=10, perpetualRate=3):
         marketPrice = yahooFinanceInfo.marketPrice
         eps = yahooFinanceInfo.trailingEPS
         shares = yahooFinanceInfo.sharesOutstanding
-        if (type(shares) == int or type(shares) == float) and shares > 1000000:
+        if (type(shares) == int or type(shares) == float) and shares > 0:
             shares = (shares / 1000000)
         if isNoneZeroEmptyOrNA(marketPrice) or isNoneZeroEmptyOrNA(eps) or isNoneZeroEmptyOrNA(shares):
             data = parseEpsSharesAndMarketPrice(url)

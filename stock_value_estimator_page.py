@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request
-from value_estimator import StockInfo, DCFInfo, parse, dcf, Graham, graham, separateThousand, roundNumber
+from value_estimator import parseStockTickers, StockInfo, DCFInfo, parse, dcf, Graham, graham, separateThousand, roundNumber
+import html
 
 app = Flask(__name__)
 
 def getTickerFromForm(request):
     text = request.form['stockTicker']
-    processed_text = text.upper()
+    processed_text = html.escape(text.upper())
     return processed_text
 
 def getCurrency(financialInfo):
@@ -28,6 +29,7 @@ def getCurrency(financialInfo):
 @app.route("/", methods=['GET', 'POST'])
 def homePage():
 	globalErrorMessage = ""
+	stockTickers = parseStockTickers()
 	stockInfo = StockInfo()
 	dcfInfo = DCFInfo()
 	grahamInfo = Graham()
@@ -51,7 +53,7 @@ def homePage():
 	financialInfo = stockInfo.financialInfo
 	currency = getCurrency(financialInfo)
 	errorMessage = stockInfo.errorMessage or dcfInfo.errorMessage or grahamInfo.errorMessage or globalErrorMessage
-	return render_template("homepage.html", stockInfo = stockInfo, dcfInfo = dcfInfo, grahamInfo = grahamInfo, ticker = ticker, financialInfo = financialInfo, currency = currency, errorMessage = errorMessage)
+	return render_template("homepage.html", stockTickers= stockTickers, stockInfo = stockInfo, dcfInfo = dcfInfo, grahamInfo = grahamInfo, ticker = ticker, financialInfo = financialInfo, currency = currency, errorMessage = errorMessage)
 
 if __name__ == "__main__":
 	app.run()
